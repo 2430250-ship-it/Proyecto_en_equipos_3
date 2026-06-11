@@ -1,0 +1,389 @@
+%% ============================================================
+%%  Sistema de Historial Médico Familiar Centralizado
+%%  con Alertas de Medicamentos
+%%  Proyecto Integrador II — Junio 2026
+%% ============================================================
+\documentclass[12pt, letterpaper]{report}
+
+%% ---- Codificación y lenguaje ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish, activeacute]{babel}
+\addto\captionsspanish{%
+  \renewcommand{\contentsname}{Tabla de Contenidos}%
+  \renewcommand{\listfigurename}{Lista de Figuras}%
+  \renewcommand{\listtablename}{Lista de Tablas}%
+  \renewcommand{\bibname}{Referencias}%
+  \renewcommand{\chaptername}{Capítulo}%
+}
+
+%% ---- Márgenes ----
+\usepackage[top=2.54cm, bottom=2.54cm, left=3cm, right=2.54cm, headheight=15pt]{geometry}
+
+%% ---- Interlineado ----
+\usepackage{setspace}
+\onehalfspacing
+
+%% ---- Fuente ----
+\usepackage{times}
+
+%% ---- Hipervínculos ----
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+
+%% ---- Bibliografía ----
+\usepackage[numbers, sort&compress]{natbib}
+
+%% ---- Encabezados ----
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\small\nouppercase{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%% ---- Formato de capítulos ----
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\centering}
+  {CAPÍTULO \thechapter}{10pt}{\large}
+\titlespacing*{\chapter}{0pt}{30pt}{20pt}
+
+%% ---- Listas ----
+\usepackage{enumitem}
+
+%% ============================================================
+\begin{document}
+
+%% ---- Portada ----
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+  {\Large\bfseries SISTEMA DE HISTORIAL MÉDICO FAMILIAR\\[6pt]
+  CENTRALIZADO CON ALERTAS DE MEDICAMENTOS\par}
+  \vspace{1.5cm}
+  {\large Por\par}
+  \vspace{0.6cm}
+  {\large Rodriguez Alvarado Oliver Rogelio\par}
+  {\large Aguilar Hernández Jesús Alejandro \par}
+  {\large De León Ruiz Hugo Guillermo\par}
+  \vspace{1.5cm}
+  {\large Presentado como parte de\par}
+  {\large los requisitos necesarios para\par}
+  {\large completar el Proyecto en Equipo 3 de\par}
+  \vspace{1.5cm}
+  {\large PROYECTO INTEGRADOR II\par}
+  \vspace{1cm}
+  {\large Junio 2026\par}
+  \vspace{1cm}
+  {\large Prof.\ Dr.\ Marco Aurelio Nuño Maganda\par}
+  \vfill
+\end{titlepage}
+
+%% ---- Páginas preliminares ----
+\pagenumbering{roman}
+\setcounter{page}{2}
+
+%% ============================================================
+%%  ABSTRACT - supusimos que en español tambien
+%% ============================================================
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+Los sistemas de gestión de registros médicos electrónicos han demostrado ser herramientas
+fundamentales para mejorar la calidad de la atención en salud, especialmente donde la
+continuidad del historial clínico es crítica para la toma de decisiones~\cite{tsai2020effects}.
+Sin embargo, en contextos familiares y de atención primaria persiste la necesidad de contar
+con soluciones accesibles, centralizadas e interoperables que integren alertas activas sobre
+el uso de medicamentos~\cite{gamache2018personal}.
+
+El presente documento describe el diseño y desarrollo de un \textbf{Sistema de Historial
+Médico Familiar Centralizado con Alertas de Medicamentos}, implementado sobre una
+arquitectura web basada en PHP y MySQL, desplegada en la plataforma InfinityFree.
+El sistema contempla módulos de autenticación con roles de usuario, expediente del
+paciente, alta médica y notificaciones farmacológicas.
+
+La metodología adoptada comprende cinco fases: planificación e investigación, diseño y
+arquitectura, desarrollo del sistema, pruebas y validación, y documentación, con hitos de
+entrega formales en cada fase.
+
+
+%% ============================================================
+%%  TABLA DE CONTENIDOS
+%% ============================================================
+\tableofcontents
+\newpage
+
+\listoftables
+\addcontentsline{toc}{chapter}{Lista de Tablas} %% POR EL MOMENTO VACIA HASTA QUE LLEGUEMOS AL CAP 4
+\newpage
+
+\listoffigures
+\addcontentsline{toc}{chapter}{Lista de Figuras} %% TAMBIEN LO MISMO DE ARRIBA
+\newpage
+
+%% ---- Cuerpo del documento ----
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+%% ============================================================
+%%  CAPÍTULO 1: INTRODUCCION
+%% ============================================================
+\chapter{INTRODUCCIÓN}
+
+\section{Antecedentes}
+
+\subsection{El Registro Médico Electrónico como Pilar de la Salud Digital}
+
+La gestión de la información clínica ha experimentado una transformación profunda desde
+la adopción de los registros médicos electrónicos (EHR). Estos sistemas permiten
+almacenar, organizar y recuperar datos de salud de forma estructurada, reemplazando
+los expedientes en papel que predominaron durante décadas en la práctica
+médica~\cite{tsai2020effects}. Un EHR bien implementado incluye información
+demográfica, diagnósticos, prescripciones, resultados de laboratorio e historiales de
+visitas, conformando un repositorio integral del estado de salud del paciente~\cite{hayrinen2008definition}.
+
+En el contexto familiar, la necesidad de contar con un historial centralizado se vuelve
+particularmente relevante. Tang et al.~\cite{tang2006personal} señalan que los registros
+personales de salud (PHR) ofrecen ventajas al empoderar al paciente y a su familia en
+la gestión proactiva de su propio bienestar, reduciendo errores derivados de información
+incompleta o desactualizada.
+
+\subsection{El Problema de la Adherencia Farmacológica y las Alertas de Medicamentos}
+
+Uno de los desafíos más persistentes en la atención sanitaria es la falta de adherencia
+al tratamiento farmacológico. Este fenómeno provoca complicaciones evitables,
+rehospitalizaciones y un incremento en los costos del sistema de
+salud~\cite{gokoel2020medication}. Almomani et al.~\cite{almomani2023adherence}
+encontraron que incluso en el contexto de antibióticos de corto plazo, una proporción
+significativa de pacientes no completa el esquema prescrito.
+
+Las intervenciones digitales orientadas a mejorar la adherencia han mostrado resultados
+prometedores. Palmer et al.~\cite{palmer2021mobile} documentaron que las intervenciones
+basadas en teléfono móvil reducen el incumplimiento terapéutico en adultos con riesgo
+cardiovascular. Asimismo, Cao et al.~\cite{cao2022mhealth} demostraron que las
+aplicaciones de mHealth con recordatorios y retroalimentación personalizada mejoran el
+control de enfermedades crónicas como la hipertensión.
+
+\subsection{Integración Tecnológica en Salud: Tendencias y Brechas}
+
+La convergencia entre la informática médica, el desarrollo web y la salud móvil ha
+impulsado una nueva generación de herramientas clínicas. La Organización Mundial de
+la Salud~\cite{world2022consolidated} ha publicado guías para la implementación de
+telemedicina que enfatizan la importancia de sistemas accesibles, seguros e
+interoperables. Ghadi et al.~\cite{ghadi2025integration} destacan el creciente papel
+de la inteligencia artificial y los dispositivos portátiles en el monitoreo remoto de
+pacientes. Sin embargo, persiste una brecha importante entre las soluciones comerciales
+de alto costo y la disponibilidad real de herramientas para entornos con recursos
+limitados~\cite{roehrs2017omniphr}.
+
+\section{Objetivos}
+
+\subsection{Objetivo General}
+
+Diseñar y desarrollar un sistema web de historial médico familiar centralizado con
+alertas de medicamentos, que permita registrar, consultar y gestionar expedientes
+clínicos de múltiples integrantes de un grupo familiar, integrando notificaciones
+sobre el uso correcto y oportuno de los medicamentos prescritos.
+
+\subsection{Objetivos Específicos}
+
+\begin{enumerate}[label=\arabic*.]
+  \item Investigar y analizar al menos 20 sistemas EHR/PHR existentes y artículos
+        científicos relevantes para fundamentar el diseño del sistema propuesto.
+  \item Levantar los requerimientos funcionales del sistema e identificar los roles
+        de usuario necesarios para su operación segura.
+  \item Modelar la base de datos relacional en MySQL que soporte el almacenamiento
+        de expedientes, prescripciones y eventos de alerta.
+  \item Diseñar las interfaces de usuario mediante wireframes y mockups que guíen
+        la implementación del frontend.
+  \item Implementar los módulos de autenticación, expediente del paciente, alta
+        médica y alertas de medicamentos sobre la arquitectura PHP~+~MySQL.
+  \item Desplegar el sistema en la plataforma InfinityFree y validarlo mediante
+        pruebas unitarias, de integración y de usabilidad con usuarios piloto.
+  \item Documentar el sistema mediante un manual de usuario y documentación técnica
+        que faciliten su mantenimiento y futura extensión.
+\end{enumerate}
+
+\section{Relevancia e Importancia}
+
+La relevancia de este proyecto se articula en tres dimensiones: clínica, tecnológica
+y social. Desde la perspectiva clínica, un sistema centralizado de historial familiar
+reduce el riesgo de errores médicos derivados de información fragmentada o
+desactualizada~\cite{hayrinen2008definition}. Las alertas de medicamentos contribuyen
+a prevenir interacciones farmacológicas peligrosas y a mejorar la adherencia
+terapéutica en padecimientos crónicos~\cite{etminani2020behavior, arshed2024effectiveness}.
+
+En el plano tecnológico, el proyecto demuestra la viabilidad de implementar
+funcionalidades avanzadas de gestión clínica sobre un stack accesible
+(PHP~+~MySQL~+~HTML/CSS/JS). Alsyouf et al.~\cite{alsyouf2023use} señalan que la
+usabilidad percibida y la confianza en la privacidad de los datos son determinantes
+clave en la adopción de sistemas PHR; ambos aspectos son abordados en el diseño del
+presente sistema.
+
+Finalmente, en términos sociales, el proyecto contribuye a democratizar el acceso a
+herramientas de salud digital para familias que no cuentan con acceso a soluciones
+EHR comerciales. La OMS~\cite{world2022consolidated} identifica este tipo de
+soluciones como palancas estratégicas para la cobertura sanitaria universal.
+
+\section{Estructura del Informe}
+
+El presente informe se organiza siguiendo una progresión lógica desde el contexto
+general del problema hasta los fundamentos técnicos que sustentan el proyecto:
+
+\medskip
+\noindent\textbf{Revisión de Literatura.} Se presenta un análisis crítico de los
+sistemas EHR/PHR existentes, las intervenciones digitales para adherencia
+farmacológica y las tendencias en salud digital, con base en las referencias
+bibliográficas pertinentes. Se identifican las brechas que motivan el desarrollo
+del presente sistema.
+
+\medskip
+\noindent\textbf{Enfoque Técnico.} Se describe la metodología de desarrollo adoptada,
+incluyendo el levantamiento de requerimientos, el modelado de la base de datos, el
+diseño de interfaces, la arquitectura del sistema y las estrategias de prueba,
+estructuradas en las cinco fases del plan de proyecto.
+
+\medskip
+\noindent\textbf{Resultados.} Se reportan los resultados de cada fase de desarrollo,
+desde la configuración del entorno hasta las pruebas de validación con usuarios
+piloto, apoyándose en métricas de desempeño y matrices de prueba.
+
+\medskip
+\noindent\textbf{Discusión.} Se interpretan los resultados en relación con la
+literatura existente, se destacan las contribuciones del proyecto y se analizan
+sus limitaciones y las áreas de mejora identificadas.
+
+\medskip
+\noindent\textbf{Conclusión.} Se sintetizan los hallazgos principales, se evalúa
+el grado de cumplimiento de los objetivos y se proponen líneas de trabajo futuro.
+
+%% ============================================================
+%%  CAPÍTULO 2: REVISIÓN DE LITERATURA
+%% ============================================================
+\chapter{REVISIÓN DE LITERATURA}
+
+\section{Registros Médicos Electrónicos y Registros Personales de Salud}
+
+Los registros médicos electrónicos (EHR) y los registros personales de salud (PHR)
+constituyen los fundamentos conceptuales del presente proyecto. Häyrinenetal.~\cite{hayrinen2008definition}
+ofrecen una definición ampliamente citada: un EHR es un repositorio longitudinal de
+información de salud de un paciente, generado en uno o más encuentros en cualquier
+entorno de atención, cuyo objetivo principal es el soporte a la atención médica continua
+y la toma de decisiones. En contraste, los PHR otorgan al propio individuo el control
+sobre sus datos, promoviendo un modelo de atención centrado en el
+paciente~\cite{tang2006personal}.
+
+Roehrs et al.~\cite{roehrs2017omniphr} desarrollaron OmniPHR, una arquitectura
+distribuida que integra registros personales de salud mediante nodos interoperables,
+demostrando que es posible construir sistemas robustos sin infraestructura centralizada
+costosa. Por su parte, Tsai et al.~\cite{tsai2020effects} realizaron una revisión de
+alcance sobre los efectos de la implementación de EHR e identificaron barreras
+recurrentes: resistencia del personal, costos elevados, problemas de usabilidad y
+preocupaciones sobre privacidad.
+
+\section{Adherencia Farmacológica e Intervenciones Digitales}
+
+La adherencia al tratamiento farmacológico es un problema global de salud pública.
+Gokoel et al.~\cite{gokoel2020medication} documentaron tasas de no adherencia
+superiores al 30\% en pacientes postrasplante, con consecuencias directas sobre la
+supervivencia del injerto. En poblaciones con enfermedades crónicas como hipertensión,
+el fenómeno es igualmente prevalente~\cite{etminani2020behavior}.
+
+Las intervenciones basadas en tecnologías digitales han demostrado ser efectivas para
+mitigar esta problemática. Palmer et al.~\cite{palmer2021mobile} concluyeron, en una
+revisión Cochrane, que las intervenciones por teléfono móvil mejoran la adherencia a
+medicamentos cardioprotectores. Cao et al.~\cite{cao2022mhealth} identificaron que los
+componentes de mayor impacto son la personalización de los mensajes y la monitorización
+continua. Arshed et al.~\cite{arshed2024effectiveness} evaluaron un paquete de
+intervención mHealth multifactorial en un país de ingreso medio-bajo, encontrando
+mejoras sustanciales tanto en adherencia como en control de la presión arterial.
+
+Chandler et al.~\cite{chandler2019impact} demostraron que la adaptación cultural de
+los programas digitales de autogestión de medicamentos es un factor clave para su
+efectividad en poblaciones hispanas, aspecto especialmente relevante en el contexto
+latinoamericano en el que se inscribe este proyecto.
+
+\section{Aplicaciones Móviles y Sistemas de Alerta Farmacológica}
+
+Okati et al.~\cite{okati2025mobile} revisaron aplicaciones disponibles en tiendas de
+aplicaciones para la desprescripción, hallando que la mayoría carece de bases de
+evidencia sólidas y que la interoperabilidad con los registros clínicos institucionales
+es escasa. Eaton et al.~\cite{eaton2024user} analizaron el compromiso del usuario con
+intervenciones mHealth en personas con enfermedades crónicas, concluyendo que la
+usabilidad y la personalización son los predictores más robustos del uso sostenido.
+
+Zavaleta-Monestel et al.~\cite{zavaleta2025artificial} presentaron una revisión
+actualizada sobre herramientas de inteligencia artificial para mejorar la adherencia
+en enfermedades crónicas no transmisibles, identificando el uso de chatbots y
+algoritmos de predicción de riesgo como las aplicaciones más prometedoras. Birkun y
+Gautam~\cite{birkun2024large} exploraron el uso de modelos de lenguaje de gran escala
+como fuentes de consejo médico, señalando tanto el potencial como los riesgos de estas
+tecnologías sin supervisión clínica.
+
+\section{Salud Digital, Telemedicina y Seguridad de Datos}
+
+Pool et al.~\cite{pool2024systematic} realizaron un análisis sistemático de fallos en
+la protección de datos de salud personales, identificando como vulnerabilidades
+frecuentes la autenticación débil, el cifrado insuficiente y la falta de auditorías
+internas. Alsyouf et al.~\cite{alsyouf2023use} aplicaron el modelo de aceptación
+tecnológica (TAM) para predecir el uso de sistemas PHR, encontrando que la percepción
+de seguridad y privacidad es el factor de mayor peso en la intención de uso.
+
+La OMS~\cite{world2022consolidated} enfatiza que cualquier sistema de telemedicina o
+salud digital debe cumplir estándares de confidencialidad, integridad y disponibilidad
+de la información. Ringeval et al.~\cite{ringeval2025advancing} analizaron las
+aplicaciones de los gemelos digitales en salud, señalando que la integración de datos
+clínicos longitudinales es el punto de partida para modelos predictivos avanzados.
+
+\section{Sistemas de Gestión de Salud en Contextos de Recursos Limitados}
+
+Katz et al.~\cite{katz2024digital} revisaron las intervenciones de salud digital para
+el manejo de hipertensión en poblaciones con disparidades de salud, concluyendo que
+las soluciones digitales pueden reducir brechas de acceso cuando se diseñan con
+criterios de equidad. Stevenson et al.~\cite{stevenson2019ehealth} evaluaron
+intervenciones eHealth en enfermedad renal crónica, encontrando beneficios en el
+seguimiento de la adherencia.
+
+Tong et al.~\cite{tong2022digital} y Duettmann et al.~\cite{duettmann2021ehealth}
+abordaron la dimensión de la alianza terapéutica digital y la adopción de herramientas
+eHealth en trasplante, respectivamente, destacando que la confianza del usuario en el
+sistema es determinante del éxito de implementación. Gonzales et al.~\cite{gonzales2021pharmacist}
+demostraron que las intervenciones lideradas por farmacéuticos a través de plataformas
+móviles mejoran la seguridad en el uso de medicamentos, evidenciando la importancia
+de integrar el componente farmacológico en los sistemas de gestión clínica. En una
+línea similar, Abasi et al.~\cite{abasi2021effectiveness} y Duncan et al.~\cite{duncan2018systematic}
+documentaron la efectividad de aplicaciones de autogestión y de intervenciones para
+adherencia a inmunosupresores, respectivamente, reforzando la evidencia a favor de
+soluciones digitales integradas. Por su parte, Huuskes et al.~\cite{huuskes2021kidney}
+exploraron las perspectivas de pacientes trasplantados sobre la telehealth durante la
+pandemia de COVID-19, destacando la aceptación creciente de este tipo de
+herramientas. Finalmente, Campbell et al.~\cite{campbell2022interventions} analizaron
+intervenciones para mejorar la alfabetización en salud en pacientes con enfermedad
+renal crónica, subrayando que la comprensión del propio historial médico es un
+habilitador clave de la adherencia terapéutica.
+
+\section{Brecha en la Investigación Existente}
+
+A pesar del volumen considerable de literatura sobre EHR, PHR e intervenciones
+digitales para la adherencia farmacológica, se identifican brechas relevantes que
+justifican el presente proyecto. En primer lugar, la mayoría de los sistemas revisados
+han sido desarrollados para contextos de alta disponibilidad tecnológica, con
+infraestructuras no replicables en entornos con recursos
+limitados~\cite{roehrs2017omniphr, tsai2020effects}. En segundo lugar, la integración
+de alertas farmacológicas dentro de un sistema de historial familiar centralizado es
+un área con escasa producción científica~\cite{okati2025mobile}. Finalmente, la
+evidencia sobre la efectividad de soluciones construidas con tecnologías web estándar
+(PHP, MySQL) desplegadas en plataformas de alojamiento gratuito es prácticamente
+inexistente, lo que otorga al presente proyecto un carácter exploratorio y de
+contribución metodológica.
+
+%% ============================================================
+%%  REFERENCIAS
+%% ============================================================
+\newpage
+\bibliographystyle{plainnat}
+\bibliography{references}
+\addcontentsline{toc}{chapter}{Referencias}
+
+\end{document}
